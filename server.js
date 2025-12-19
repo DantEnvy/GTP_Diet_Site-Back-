@@ -1,52 +1,70 @@
 import express from "express";
 import OpenAI from "openai";
-import dotenv from "dotenv";
 import cors from "cors";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 const app = express();
+const port = process.env.PORT || 3000;
+
+// Разрешаем CORS и JSON
 app.use(cors());
 app.use(express.json());
 
+// Настройка OpenAI
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY, // Убедитесь, что ключ есть в файле .env
 });
 
-app.get("/", (req, res) => {
-  res.send("Backend is working 🚀");
-});
-app.get("/api/diet", (req, res) => {
-  res.status(200).json({ diet: "Тут буде стандартна дієта або повідомлення" });
-});
-
+// POST запрос для генерации диеты
 app.post("/api/diet", async (req, res) => {
   try {
-    const { allergy, health, carb, bmr, squirrels, fat } = req.body;
+    // 1. Получаем данные от фронтенда
+    const { bmr, carb, fat, protein, allergy, health } = req.body;
 
+    console.log("Отримані дані:", req.body);
+
+    // 2. Формируем запрос (Prompt) для GPT
     const prompt = `
-Зроби персональні рекомендації:
-Каллорії: ${bmr}
-Білки: ${squirrels}
-Жири: ${fat}
-Вуглеводи: ${carb}
-Алергії: ${allergy}
-Нюанси зі здоров'ям: ${health}
-`;
+      Створи детальний план харчування на один день українською мовою.
+      
+      Дані користувача:
+      - Добова норма калорій: ${bmr} ккал.
+      - Білки: ${protein} г.
+      - Жири: ${fat} г.
+      - Вуглеводи: ${carb} г.
+      - Алергії: ${allergy ? allergy : "немає"}.
+      - Стан здоров'я/обмеження: ${health ? health : "не вказано"}.
 
+      Будь ласка, розпиши:
+      1. Сніданок, Обід, Вечеря та перекуси.
+      2. Приблизну вагу порцій.
+      3. Враховуй вказані алергії та стан здоров'я.
+      4. Формат відповіді має бути гарним та структурованим текстом.
+    `;
+
+    // 3. Отправляем запрос в OpenAI
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }]
+      messages: [{ role: "user", content: prompt }],
+      model: "gpt-3.5-turbo", // Или "gpt-4", если доступно
     });
 
-    res.json({ diet: completion.choices[0].message.content });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Помилка сервера" });
+    // 4. Получаем текст ответа
+    const botResponse = completion.choices[0].message.content;
+
+    // 5. Отправляем ответ на фронтенд
+    res.status(200).json({ diet: botResponse });
+
+  } catch (error) {
+    console.error("Помилка OpenAI:", error);
+    res.status(500).json({ 
+      diet: "Вибачте, сталася помилка при генерації дієти. Перевірте ключ API або спробуйте пізніше." 
+    });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("Server started on port", PORT);
+// Запуск сервера
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
