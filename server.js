@@ -16,6 +16,9 @@ const openai = new OpenAI({
 app.get("/", (req, res) => {
   res.send("Backend is working 🚀");
 });
+app.get("/api/diet", (req, res) => {
+  res.status(200).json({ diet: "Тут буде стандартна дієта або повідомлення" });
+});
 
 app.post("/api/diet", async (req, res) => {
   try {
