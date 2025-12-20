@@ -1,4 +1,4 @@
-import express from "express";
+/*import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
@@ -12,17 +12,31 @@ app.use(express.json()); // ✔ правильне читання JSON
 
 const PORT = process.env.PORT || 3000;
 
-// --- ГОЛОВНИЙ МАРШРУТ ---
-app.post('/', async (req, res) => {
+// --- ГОЛОВНИЙ МАРШРУТ ---*/
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+// ОСЬ ТУТ ВАШ МАРШРУТ.
+// Оскільки URL просто https://back-end-daij.onrender.com, то шлях це просто '/'
+app.post('/', async (req, res) => { 
     try {
         console.log("Отримано запит:", req.body);
 
         const { bmr, protein, fat, carb, allergy, health } = req.body;
 
-        if (!process.env.GOOGLE_API_KEY) {
-            return res.status(500).json({
-                error: "GOOGLE_API_KEY не знайдено"
-            });
+        // Перевірка ключа (потрібно додати його в Environment Variables на Render)
+        const API_KEY = process.env.GOOGLE_API_KEY; 
+        if (!API_KEY) {
+            return res.status(500).json({ error: "GOOGLE_API_KEY не знайдено на сервері" });
         }
 
         const promptText = `
@@ -43,9 +57,10 @@ app.post('/', async (req, res) => {
 4. Врахувати алергії
         `;
 
+        // Запит до Google Gemini
         const response = await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-          {
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
+            {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -58,27 +73,20 @@ app.post('/', async (req, res) => {
 
         if (!response.ok) {
             console.error("Gemini error:", data);
-            return res.status(500).json({
-                error: "Помилка відповіді від Gemini"
-            });
+            return res.status(500).json({ error: "Помилка відповіді від Gemini" });
         }
 
-        const dietText =
-            data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const dietText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!dietText) {
-            return res.status(500).json({
-                error: "Порожня відповідь від ШІ"
-            });
+            return res.status(500).json({ error: "Порожня відповідь від ШІ" });
         }
 
         res.json({ diet: dietText });
 
     } catch (err) {
         console.error("SERVER ERROR:", err);
-        res.status(500).json({
-            error: "Внутрішня помилка сервера"
-        });
+        res.status(500).json({ error: "Внутрішня помилка сервера" });
     }
 });
 
