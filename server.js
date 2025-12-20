@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+// import fetch from 'node-fetch'; // Якщо виникає помилка "fetch is not defined" на старих нодах, розкоментуйте це (попередньо зробивши npm install node-fetch)
+// Але на Node 18+ fetch вбудований.
 
 dotenv.config();
 
@@ -10,14 +12,12 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// МАРШРУТ: корінь сайту
 app.post('/', async (req, res) => { 
     try {
         console.log("Отримано запит:", req.body);
-
         const { bmr, protein, fat, carb, allergy, health } = req.body;
-
         const API_KEY = process.env.GOOGLE_API_KEY; 
+        
         if (!API_KEY) {
             return res.status(500).json({ error: "GOOGLE_API_KEY не знайдено на сервері" });
         }
@@ -40,8 +40,9 @@ app.post('/', async (req, res) => {
 4. Врахувати алергії
         `;
 
+        // ВИКОРИСТОВУЄМО GEMINI 1.5 FLASH (стабільніша)
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -53,9 +54,18 @@ app.post('/', async (req, res) => {
 
         const data = await response.json();
 
+        // Обробка помилок від Google
         if (!response.ok) {
             console.error("Gemini error:", data);
-            return res.status(500).json({ error: "Помилка відповіді від Gemini" });
+            
+            // Якщо ліміт вичерпано (код 429)
+            if (response.status === 429) {
+                return res.status(429).json({ 
+                    error: "Перевищено ліміт запитів до ШІ. Будь ласка, зачекайте хвилину і спробуйте знову." 
+                });
+            }
+
+            return res.status(500).json({ error: "Помилка відповіді від Gemini: " + (data.error?.message || response.statusText) });
         }
 
         const dietText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
