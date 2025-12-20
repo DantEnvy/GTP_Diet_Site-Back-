@@ -13,7 +13,7 @@ app.use(express.json()); // ✔ правильне читання JSON
 const PORT = process.env.PORT || 3000;
 
 // --- ГОЛОВНИЙ МАРШРУТ ---
-app.post("/api/diet", async (req, res) => {
+app.post("https://back-end-daij.onrender.com", async (req, res) => {
     try {
         console.log("Отримано запит:", req.body);
 
