@@ -15,7 +15,7 @@ app.use(express.json());
 app.post('/', async (req, res) => { 
     try {
         console.log("Отримано запит:", req.body);
-        const { bmr, protein, fat, carb, allergy, health } = req.body;
+        const { age, bmr, protein, fat, carb, allergy, health, vitamins } = req.body;
         const API_KEY = process.env.GOOGLE_API_KEY; 
         
         if (!API_KEY) {
