@@ -38,7 +38,9 @@ app.post('/', async (req, res) => {
 2. Вказати вагу продуктів (г)
 3. Структурований Markdown
 4. Врахувати алергії
-        `;
+        
+
+Виведи у JSON форматі`;
 
         // ВИКОРИСТОВУЄМО GEMINI 1.5 FLASH (стабільніша)
         const response = await fetch(
