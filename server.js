@@ -1,18 +1,3 @@
-/*import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-
-dotenv.config();
-
-const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json()); // ✔ правильне читання JSON
-
-const PORT = process.env.PORT || 3000;
-
-// --- ГОЛОВНИЙ МАРШРУТ ---*/
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -25,15 +10,13 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// ОСЬ ТУТ ВАШ МАРШРУТ.
-// Оскільки URL просто https://back-end-daij.onrender.com, то шлях це просто '/'
+// МАРШРУТ: корінь сайту
 app.post('/', async (req, res) => { 
     try {
         console.log("Отримано запит:", req.body);
 
         const { bmr, protein, fat, carb, allergy, health } = req.body;
 
-        // Перевірка ключа (потрібно додати його в Environment Variables на Render)
         const API_KEY = process.env.GOOGLE_API_KEY; 
         if (!API_KEY) {
             return res.status(500).json({ error: "GOOGLE_API_KEY не знайдено на сервері" });
@@ -57,7 +40,6 @@ app.post('/', async (req, res) => {
 4. Врахувати алергії
         `;
 
-        // Запит до Google Gemini
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
             {
@@ -90,7 +72,6 @@ app.post('/', async (req, res) => {
     }
 });
 
-// --- ЗАПУСК ---
 app.listen(PORT, () => {
     console.log(`🚀 Сервер запущено на порту ${PORT}`);
 });
