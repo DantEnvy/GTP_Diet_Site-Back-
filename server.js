@@ -1,3 +1,4 @@
+import express from 'express';
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config(); // Завантажує змінні з файлу .env
