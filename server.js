@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -76,21 +75,13 @@ app.post('/', async (req, res) => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ 
-                        parts: [{ 
-                            text: promptText + " Ответ верни строго в формате JSON без текста до или после. Ключи: завтрак, обед, ужин, советы." 
-                        }] 
-                    }],
-                    // ДОБАВЬТЕ ЭТОТ БЛОК:
-                    generationConfig: {
-                        responseMimeType: "application/json"
-                    }
+                    contents: [{ parts: [{ text: promptText }] }]
                 })
             }
         );
 
         const data = await response.json();
-        
+
         // Обробка помилок від Google
         if (!response.ok) {
             console.error("Gemini error:", data);
@@ -111,7 +102,7 @@ app.post('/', async (req, res) => {
             return res.status(500).json({ error: "Порожня відповідь від ШІ" });
         }
 
-        res.json({ message: data.candidates[0].content.parts[0].text });
+        res.json({ diet: dietText });
 
     } catch (err) {
         console.error("SERVER ERROR:", err);
@@ -122,3 +113,25 @@ app.post('/', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Сервер запущено на порту ${PORT}`);
 });
+
+
+
+
+
+
+/* Ти професійний дієтолог. Створи детальний план харчування (меню) на один день українською мовою.
+
+Дані клієнта:
+- Добова норма калорій: ${bmr} ккал
+- Білки: ${protein} г
+- Жири: ${fat} г
+- Вуглеводи: ${carb} г
+- Алергії: ${allergy || "немає"}
+- Особливості здоров'я: ${health || "немає"}
+
+Завдання:
+1. Сніданок, Обід, Вечеря + 1–2 перекуси
+2. Вказати вагу продуктів (г)
+3. Структурований Markdown
+4. Врахувати алергії
+        */
