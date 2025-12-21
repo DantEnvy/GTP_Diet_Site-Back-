@@ -75,10 +75,13 @@ app.post('/', async (req, res) => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptText }] }]
-                })
+            contents: [{ parts: [{ text: promptText }] }],
+            // Добавляем эту настройку, чтобы ИИ точно вернул JSON
+            generationConfig: {
+                responseMimeType: "application/json"
             }
-
+        })
+            }
         );
 
         const data = await response.json();
