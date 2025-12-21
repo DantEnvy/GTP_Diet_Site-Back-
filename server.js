@@ -68,7 +68,6 @@ app.post('/', async (req, res) => {
 Якщо якихось даних не вистачає, явно вкажи зроблені припущення.
 
 Виведи у JSON форматі`;
-
         // ВИКОРИСТОВУЄМО GEMINI 1.5 FLASH (стабільніша)
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
@@ -79,6 +78,7 @@ app.post('/', async (req, res) => {
                     contents: [{ parts: [{ text: promptText }] }]
                 })
             }
+
         );
 
         const data = await response.json();
