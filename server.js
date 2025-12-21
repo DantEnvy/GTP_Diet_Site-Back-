@@ -75,17 +75,21 @@ app.post('/', async (req, res) => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }],
-            // Добавляем эту настройку, чтобы ИИ точно вернул JSON
-            generationConfig: {
-                responseMimeType: "application/json"
-            }
-        })
+                    contents: [{ 
+                        parts: [{ 
+                            text: promptText + " Ответ верни строго в формате JSON без текста до или после. Ключи: завтрак, обед, ужин, советы." 
+                        }] 
+                    }],
+                    // ДОБАВЬТЕ ЭТОТ БЛОК:
+                    generationConfig: {
+                        responseMimeType: "application/json"
+                    }
+                })
             }
         );
 
         const data = await response.json();
-
+        
         // Обробка помилок від Google
         if (!response.ok) {
             console.error("Gemini error:", data);
@@ -106,7 +110,7 @@ app.post('/', async (req, res) => {
             return res.status(500).json({ error: "Порожня відповідь від ШІ" });
         }
 
-        res.json({ diet: dietText });
+        res.json({ message: data.candidates[0].content.parts[0].text });
 
     } catch (err) {
         console.error("SERVER ERROR:", err);
