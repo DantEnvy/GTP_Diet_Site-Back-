@@ -1,4 +1,4 @@
-/*import express from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 // import fetch from 'node-fetch'; // Якщо виникає помилка "fetch is not defined" на старих нодах, розкоментуйте це (попередньо зробивши npm install node-fetch)
@@ -113,93 +113,4 @@ app.post('/', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Сервер запущено на порту ${PORT}`);
-});*/
-
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(express.json());
-
-app.post('/', async (req, res) => { 
-    try {
-        console.log("Отримано запит:", req.body);
-        const { age, height, weight, gender, bmr, protein, fat, carb, allergy, health, vitamins } = req.body;
-        const API_KEY = process.env.GOOGLE_API_KEY; 
-        
-        if (!API_KEY) {
-            return res.status(500).json({ error: "GOOGLE_API_KEY не знайдено на сервері" });
-        }
-
-        // 1. Інструкція для ШІ з чіткою структурою
-        const promptText = `
-        Ти професійний дієтолог. Створи план харчування на 1 день.
-        
-        Дані клієнта:
-        - Вік: ${age}, Зріст: ${height}, Вага: ${weight}, Стать: ${gender}
-        - BMR: ${bmr} ккал
-        - Ціль: Білки ${protein}г, Жири ${fat}г, Вуглеводи ${carb}г
-        - Алергії: ${allergy}, Стан здоров'я: ${health}
-        - Вітаміни: ${JSON.stringify(vitamins)}
-
-        ВАЖЛИВО: Відповідь має бути виключно дійсним JSON об'єктом без форматування Markdown (без \`\`\`json).
-        Структура JSON:
-        {
-          "recommendations": "Твій текст рекомендацій...",
-          "days": [
-            {
-              "day_number": "День 1",
-              "total_calories": 2000,
-              "macros": { "protein": 100, "fat": 80, "carbs": 200 },
-              "meals": [
-                { "type": "Сніданок", "name": "Назва страви", "description": "Інгредієнти...", "calories": 500, "p": 20, "f": 15, "c": 50 },
-                { "type": "Обід", "name": "Назва страви", "description": "Інгредієнти...", "calories": 700, "p": 30, "f": 20, "c": 70 }
-              ]
-            }
-          ]
-        }
-        `;
-
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptText }] }],
-                    // 2. Вмикаємо режим JSON
-                    generationConfig: {
-                        response_mime_type: "application/json"
-                    }
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            console.error("Gemini Error:", data);
-            return res.status(500).json({ error: "Помилка Gemini API" });
-        }
-
-        const dietText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (!dietText) {
-            return res.status(500).json({ error: "Порожня відповідь від ШІ" });
-        }
-
-        res.json({ diet: dietText });
-
-    } catch (error) {
-        console.error("Server Error:", error);
-        res.status(500).json({ error: "Внутрішня помилка сервера" });
-    }
 });
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
