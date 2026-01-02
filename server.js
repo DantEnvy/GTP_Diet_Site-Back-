@@ -115,7 +115,6 @@ app.listen(PORT, () => {
     console.log(`🚀 Сервер запущено на порту ${PORT}`);
 });*/
 
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
