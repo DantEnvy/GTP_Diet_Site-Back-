@@ -1,8 +1,6 @@
-import express from 'express';
+/*import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-// import fetch from 'node-fetch'; // Якщо виникає помилка "fetch is not defined" на старих нодах, розкоментуйте це (попередньо зробивши npm install node-fetch)
-// Але на Node 18+ fetch вбудований.
 
 dotenv.config();
 
@@ -111,4 +109,61 @@ app.post('/', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Сервер запущено на порту ${PORT}`);
+});*/
+
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+// Розкоментуйте, якщо Node.js < 18
+// import fetch from 'node-fetch'; 
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+app.post('/', async (req, res) => {
+    try {
+        console.log("Отримано запит:", req.body);
+        const { age, height, weight, gender, activity } = req.body;
+        const API_KEY = process.env.GOOGLE_API_KEY;
+
+        if (!API_KEY) {
+            return res.status(500).json({ error: "GOOGLE_API_KEY не налаштовано на сервері" });
+        }
+
+        const promptText = `Ти дієтолог. Склади план харчування для: ${age} років, ${height}см, ${weight}кг, стать: ${gender}, активність: ${activity}.`;
+
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: promptText }] }]
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error("Помилка Gemini API:", data);
+            return res.status(500).json({ error: data.error?.message || "Помилка API" });
+        }
+
+        const dietText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        res.json({ diet: dietText });
+
+    } catch (error) {
+        console.error("Помилка сервера:", error);
+        res.status(500).json({ error: "Внутрішня помилка сервера" });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Сервер запущено на http://localhost:${PORT}`);
 });
