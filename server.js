@@ -36,7 +36,7 @@ app.post('/', async (req, res) => {
 Білки: ${protein} г
 Жири: ${fat} г
 Вуглеводи: ${carb} г
-Вітаміни та мікроелементи на день: ${vitamins}
+Вітаміни та мікроелементи на день: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
 
 Завдання:
 На основі цих даних склади повноцінний раціон харчування на 7 днів.
