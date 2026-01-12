@@ -74,14 +74,16 @@ app.post('/', async (req, res) => {
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: promptText }] }]
                 })
+                // method: "POST",
             }
         );
 
         const data = await response.json();
-        const parsedJson = await result.json();
-  console.log(parsedJson);
-  output.innerHTML = parsedJson.candidates[0].content.parts[0].text;
-  console.log(data);
+        /*const parsedJson = await result.json();
+        console.log(parsedJson);
+        output.innerHTML = parsedJson.candidates[0].content.parts[0].text;
+        console.log(data);*/
+
         // Обробка помилок від Google
         if (!response.ok) {
             console.error("Gemini error:", data);
