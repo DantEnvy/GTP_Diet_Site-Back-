@@ -20,6 +20,7 @@ app.post('/', async (req, res) => {
             return res.status(500).json({ error: "GOOGLE_API_KEY не знайдено на сервері" });
         }
 
+
         const promptText = `
 Не пиши привітання та вступний текст. Не дублюй мої добові норми (калорії, білки тощо). Надай лише сам план харчування, починаючи з першого дня.
 Ти є професійним дієтологом і нутриціологом. Твоє завдання — створити персональні рекомендації з харчування на основі наданих даних людини.
@@ -64,11 +65,11 @@ app.post('/', async (req, res) => {
 
 Не надавай медичних порад, лише рекомендації з харчування.
 Якщо якихось даних не вистачає, явно вкажи зроблені припущення.`;
-
-if (language === 'en') {
+        if (language == 'en') {
             promptText = promptText + `Виведи свою відповідь англійською мовою`
-}
-        const response = await fetch(
+        }
+
+   const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
             {
                 method: "POST",
