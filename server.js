@@ -78,7 +78,10 @@ app.post('/', async (req, res) => {
         );
 
         const data = await response.json();
-
+        const parsedJson = await result.json();
+  console.log(parsedJson);
+  output.innerHTML = parsedJson.candidates[0].content.parts[0].text;
+  console.log(data);
         // Обробка помилок від Google
         if (!response.ok) {
             console.error("Gemini error:", data);
@@ -111,4 +114,4 @@ app.listen(PORT, () => {
     console.log(`🚀 Сервер запущено на порту ${PORT}`);
 });
 
-// пися
+// пися 
