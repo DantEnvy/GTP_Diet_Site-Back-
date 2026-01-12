@@ -65,6 +65,7 @@ app.post('/', async (req, res) => {
 
 Не надавай медичних порад, лише рекомендації з харчування.
 Якщо якихось даних не вистачає, явно вкажи зроблені припущення.`;
+
         if (language == 'en') {
             promptText = promptText + `Виведи свою відповідь англійською мовою`
         }
@@ -77,21 +78,14 @@ app.post('/', async (req, res) => {
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: promptText }] }]
                 })
-                // method: "POST",
             }
         );
 
         const data = await response.json();
-        /*const parsedJson = await result.json();
-        console.log(parsedJson);
-        output.innerHTML = parsedJson.candidates[0].content.parts[0].text;
-        console.log(data);*/
 
-        // Обробка помилок від Google
         if (!response.ok) {
             console.error("Gemini error:", data);
             
-            // Якщо ліміт вичерпано (код 429)
             if (response.status === 429) {
                 return res.status(429).json({ 
                     error: "Перевищено ліміт запитів до ШІ. Будь ласка, зачекайте хвилину і спробуйте знову." 
