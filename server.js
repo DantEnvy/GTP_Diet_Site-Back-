@@ -13,7 +13,7 @@ app.use(express.json());
 app.post('/', async (req, res) => { 
     try {
         console.log("Отримано запит:", req.body);
-        const { age, height, weight, gender, bmr, protein, fat, carb, allergy, health, vitamins } = req.body;
+        const { age, height, weight, gender, bmr, protein, fat, carb, allergy, health, vitamins, language } = req.body;
         const API_KEY = process.env.GOOGLE_API_KEY; 
         
         if (!API_KEY) {
@@ -21,7 +21,7 @@ app.post('/', async (req, res) => {
         }
 
         const promptText = `
-
+Не пиши привітання та вступний текст. Не дублюй мої добові норми (калорії, білки тощо). Надай лише сам план харчування, починаючи з першого дня.
 Ти є професійним дієтологом і нутриціологом. Твоє завдання — створити персональні рекомендації з харчування на основі наданих даних людини.
 
 Вхідні дані користувача:
@@ -65,7 +65,9 @@ app.post('/', async (req, res) => {
 Не надавай медичних порад, лише рекомендації з харчування.
 Якщо якихось даних не вистачає, явно вкажи зроблені припущення.`;
 
-        // ВИКОРИСТОВУЄМО GEMINI 1.5 FLASH (стабільніша)
+if (language === 'en') {
+            promptText = promptText  `Переклади текст вище англійською мовою та відповідай англійською`
+}
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
             {
