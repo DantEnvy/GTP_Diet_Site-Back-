@@ -66,7 +66,7 @@ app.post('/', async (req, res) => {
 Якщо якихось даних не вистачає, явно вкажи зроблені припущення.`;
 
 if (language === 'en') {
-            promptText = promptText  `Переклади текст вище англійською мовою та відповідай англійською`
+            promptText = promptText + `Виведи свою відповідь англійською мовою`
 }
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
