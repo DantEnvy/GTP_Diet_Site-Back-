@@ -13,7 +13,7 @@ app.use(express.json());
 app.post('/', async (req, res) => { 
     try {
         console.log("Отримано запит:", req.body);
-        const { age, height, weight, gender, bmr, protein, fat, carb, allergy, health, vitamins, language } = req.body;
+        const { age, height, weight, gender, bmr, protein, fat, carb, allergy, health, vitamins, language, goal } = req.body;
         const API_KEY = process.env.GOOGLE_API_KEY; 
         
         if (!API_KEY) {
@@ -26,6 +26,7 @@ app.post('/', async (req, res) => {
 Ти є професійним дієтологом і нутриціологом. Твоє завдання — створити персональні рекомендації з харчування на основі наданих даних людини.
 
 Вхідні дані користувача:
+Ціль: ${goal || "підтримання"}
 Вік: ${age}
 Зріст: ${height} см
 Вага: ${weight} кг
@@ -112,5 +113,3 @@ app.post('/', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Сервер запущено на порту ${PORT}`);
 });
-
-// пися 
