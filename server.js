@@ -13,7 +13,7 @@ app.use(express.json());
 app.post('/', async (req, res) => { 
     try {
         console.log("Отримано запит:", req.body);
-        const { age, height, weight, gender, bmr, protein, fat, carb, allergy, health, vitamins, language, goal } = req.body;
+        const { age, height, weight, gender, bmr, protein, fat, carb, allergy, health, vitamins, language, goal, food } = req.body;
         const API_KEY = process.env.GOOGLE_API_KEY; 
         
         if (!API_KEY) {
@@ -31,6 +31,7 @@ app.post('/', async (req, res) => {
             Вага: ${weight} кг
             Стать: ${gender}
             Алергії: ${allergy}
+            Продукти, які потрібно виключити: ${food}
             Стан здоров'я: ${health}
             Добові норми:
             Калорії: ${bmr} ккал
@@ -87,6 +88,7 @@ app.post('/', async (req, res) => {
             - Age: ${age} | Height: ${height}cm | Weight: ${weight}kg | Gender: ${gender}
             - Allergies (MUST EXCLUDE): ${allergy}
             - Health Conditions: ${health}
+            - Foods to Avoid (MUST EXCLUDE): ${food}
             - DAILY TARGETS (Tolerance ±5%)
             - Calories: ${bmr} kcal
             - Protein: ${protein}g | Fat: ${fat}g | Carbs: ${carb}g
