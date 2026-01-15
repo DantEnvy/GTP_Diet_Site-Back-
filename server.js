@@ -194,54 +194,59 @@ app.post('/', async (req, res) => {
         let promptText = ``
         if (language == 'uk') {
             promptText = `
-ROLE & OBJECTIVE:
-Дій як клінічний дієтолог. Створи суворо розрахований план харчування на 7 днів на основі біометричних даних користувача та обмежень, наведених нижче.
+РОЛЬ ТА МЕТА:
+Дій як клінічний дієтолог. Створи суворо розрахований план харчування на 7 днів на основі наведених нижче біометричних даних користувача та обмежень.
 
-LANGUAGE CONSTRAINT:
-Весь вивід має бути виключно **УКРАЇНСЬКОЮ** мовою.
+МОВНЕ ОБМЕЖЕННЯ:
+ВЕСЬ ВИВІД МАЄ БУТИ ВИКЛЮЧНО УКРАЇНСЬКОЮ МОВОЮ.
 
-CRITICAL OUTPUT RULES (STRICTLY ENFORCE):
-1. ЖОДНИХ розмовних заповнювачів, ЖОДНИХ привітань, ЖОДНИХ вступів (наприклад, "Звісно, ось...").
-2. ЖОДНИХ пояснювальних преамбул, "Важливих припущень" або контекстних приміток перед планом.
-3. НЕ повторювати надані дані користувача.
-4. ПОЧИНАТИ НЕГАЙНО із заголовка "## День 1".
-5. ЖОДНИХ медичних відмов від відповідальності в основному тексті.
-6. Повернути ТІЛЬКИ структурований план харчування та розділ фінальних рекомендацій.
+КРИТИЧНІ ПРАВИЛА ВИВОДУ (СУВОРО ДОТРИМУВАТИСЬ):
+1. ЖОДНИХ розмовних вставок, ЖОДНИХ привітань, ЖОДНИХ вступів (наприклад, "Звісно...", "Ось ваш план...").
+2. НЕ повторювати вхідні дані користувача.
+3. ПОЧИНАТИ НЕГАЙНО із заголовка "## День 1".
+4. ЖОДНИХ медичних відмов від відповідальності в основному тексті.
+5. Повернути ТІЛЬКИ структурований план харчування та розділ фінальних рекомендацій.
+6. НЕ використовувати таблиці. Використовуй чіткий списковий формат із жирним шрифтом для кращої читабельності.
 
-USER VARIABLES:
+ЗМІННІ КОРИСТУВАЧА:
 - Мета: ${goal || "підтримка ваги"}
 - Вік: ${age} | Зріст: ${height}см | Вага: ${weight}кг | Стать: ${gender}
 - Алергії (ОБОВ'ЯЗКОВО ВИКЛЮЧИТИ): ${allergy}
 - Стан здоров'я: ${health}
 - Продукти, яких слід уникати (ОБОВ'ЯЗКОВО ВИКЛЮЧИТИ): ${food}
-- ДЕННІ ЦІЛІ (Допуск ±5%)
-- Калорії: ${bmr} ккал
-- Білки: ${protein}г | Жири: ${fat}г | Вуглеводи: ${carb}г
-- Мікронутрієнти: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
+- ДЕННІ ЦІЛІ (Допуск ±5%):
+  - Калорії: ${bmr} ккал
+  - Макронутрієнти: Білки ${protein}г | Жири ${fat}г | Вуглеводи ${carb}г
+  - Мікронутрієнти: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
 
-CONTENT REQUIREMENTS:
-1. Структура: 7 днів. Кожен день включає Сніданок, Обід, Вечерю, Перекус(и).
-2. Страви: Мають бути реалістичними, доступними та збалансованими.
-3. Дані про страву: Назва, Інгредієнти з точною вагою (г), Калорії, Б/Ж/В (г), Основні вітаміни.
-4. Денні підсумки: В кінці кожного дня надати зведену таблицю порівняння загальних показників дня з цільовими.
-
-OUTPUT FORMAT:
-Використовуй наступну структуру Markdown точно:
+ФОРМАТ ВИВОДУ:
+Використовуй наступну структуру Markdown точно для кожного дня:
 
 ## День 1
-| Прийом їжі | Страва | Інгредієнти (г) | Ккал | Б (г) | Ж (г) | В (г) | Вітаміни |
-|---|---|---|---|---|---|---|---|
-| Сніданок | ... | ... | ... | ... | ... | ... | ... |
-| Обід | ... | ... | ... | ... | ... | ... | ... |
-| ... | ... | ... | ... | ... | ... | ... | ... |
+**Сніданок:** [Назва страви]
+- Інгредієнти: [Список інгредієнтів з точною вагою в грамах]
+- Поживна цінність: [X] ккал | Б: [X]г | Ж: [X]г | В: [X]г | Вітаміни: [Ключові вітаміни]
 
-Підсумок Дня 1: Всього Ккал: [X] (Ціль: ${bmr}), Б: [X]г, Ж: [X]г, В: [X]г.
+**Обід:** [Назва страви]
+- Інгредієнти: ...
+- Поживна цінність: ...
+
+**Вечеря:** [Назва страви]
+- Інгредієнти: ...
+- Поживна цінність: ...
+
+**Перекус:** [Назва страви]
+- Інгредієнти: ...
+- Поживна цінність: ...
+
+**Підсумок Дня 1:** Всього Ккал: [X] (Ціль: ${bmr}), Б: [X]г, Ж: [X]г, В: [X]г.
 
 [Повторити для Днів 2-7]
 
 ## Загальні Рекомендації
-- Гідратація: ...
-- Заміни: ...
+- **Гідратація:** ...
+- **Заміни:** ...
+- **Поради:** ...
 `;
         } else if (language == 'en') {
             promptText = `
@@ -249,15 +254,15 @@ ROLE & OBJECTIVE:
 Act as a clinical nutritionist. Generate a strictly calculated 7-day meal plan based on the user's biometric data and constraints below.
 
 LANGUAGE CONSTRAINT:
-The entire output must be strictly in **ENGLISH**. Do not use Ukrainian or any other language.
+OUTPUT MUST BE STRICTLY IN ENGLISH.
 
 CRITICAL OUTPUT RULES (STRICTLY ENFORCE):
-1. NO conversational filler, NO greetings, NO introductions (e.g., "Sure, here is...").
-2. NO explanatory preambles, "Important assumptions," or context notes before the plan.
-3. NO repetition of the provided user inputs.
-4. START IMMEDIATELY with the header "## Day 1".
-5. NO medical disclaimers in the body text.
-6. Return ONLY the structured meal plan and the final recommendations section.
+1. NO conversational filler, NO greetings, NO introductions (e.g., "Sure...", "Here is...").
+2. NO repetition of user inputs.
+3. START IMMEDIATELY with the header "## Day 1".
+4. NO medical disclaimers in the body text.
+5. Return ONLY the structured meal plan and the final recommendations section.
+6. DO NOT use tables. Use a clear list format with bold headers.
 
 USER VARIABLES:
 - Goal: ${goal || "maintenance"}
@@ -265,36 +270,41 @@ USER VARIABLES:
 - Allergies (MUST EXCLUDE): ${allergy}
 - Health Conditions: ${health}
 - Foods to Avoid (MUST EXCLUDE): ${food}
-- DAILY TARGETS (Tolerance ±5%)
-- Calories: ${bmr} kcal
-- Protein: ${protein}g | Fat: ${fat}g | Carbs: ${carb}g
-- Micronutrients: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
-
-CONTENT REQUIREMENTS:
-1. Structure: 7 Days. Each day includes Breakfast, Lunch, Dinner, Snack(s).
-2. Meals: Must be realistic, affordable, and balanced.
-3. Data per Meal: Name, Ingredients with precise weight (g), Calories, P/F/C (g), Key Vitamins.
-4. Daily Totals: At the end of each day, provide a summary table comparing the day's total vs. the target.
+- DAILY TARGETS (Tolerance ±5%):
+  - Calories: ${bmr} kcal
+  - Macros: Protein ${protein}g | Fat ${fat}g | Carbs ${carb}g
+  - Micronutrients: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
 
 OUTPUT FORMAT:
 Use the following Markdown structure exactly:
 
 ## Day 1
-| Meal | Dish | Ingredients (g) | Kcal | P (g) | F (g) | C (g) | Vitamins |
-|---|---|---|---|---|---|---|---|
-| Breakfast | ... | ... | ... | ... | ... | ... | ... |
-| Lunch | ... | ... | ... | ... | ... | ... | ... |
-| ... | ... | ... | ... | ... | ... | ... | ... |
+**Breakfast:** [Dish Name]
+- Ingredients: [List of ingredients with precise weight in grams]
+- Nutrition: [X] kcal | P: [X]g | F: [X]g | C: [X]g | Vitamins: [Key Vitamins]
 
-Day 1 Summary: Total Kcal: [X] (Target: ${bmr}), P: [X]g, F: [X]g, C: [X]g.
+**Lunch:** [Dish Name]
+- Ingredients: ...
+- Nutrition: ...
+
+**Dinner:** [Dish Name]
+- Ingredients: ...
+- Nutrition: ...
+
+**Snack:** [Dish Name]
+- Ingredients: ...
+- Nutrition: ...
+
+**Day 1 Summary:** Total Kcal: [X] (Target: ${bmr}), P: [X]g, F: [X]g, C: [X]g.
 
 [Repeat for Days 2-7]
 
 ## General Recommendations
-- Hydration: ...
-- Substitutions: ...
+- **Hydration:** ...
+- **Substitutions:** ...
+- **Tips:** ...
 `;
-        }
+}
 
         // --- ИЗМЕНЕНИЕ 2: Логика перебора ключей ---
         let data;
