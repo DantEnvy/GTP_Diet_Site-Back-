@@ -19,7 +19,7 @@ app.post('/', async (req, res) => {
         if (!API_KEY) {
             return res.status(500).json({ error: "GOOGLE_API_KEY не знайдено на сервері" });
         }
-        const promptText = ``
+        let promptText = ``
         if (language == 'uk') {
             promptText = `
             НЕ пиши привітання та вступний текст! Не дублюй мої добові норми (калорії, білки тощо). Надай лише(!) сам план харчування, починаючи з першого дня.
