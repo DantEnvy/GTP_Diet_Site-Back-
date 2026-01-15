@@ -188,7 +188,7 @@ app.post('/', async (req, res) => {
         ].filter(key => key); // Убираем пустые, если какой-то ключ не задан
 
         if (apiKeys.length === 0) {
-            return res.status(500).json({ error: "API ключи не найдены на сервере" });
+            return res.status(500).json({ error: "GOOGLE_API_KEY не знайдено на сервері" });
         }
 
         let promptText = ``
