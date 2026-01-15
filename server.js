@@ -67,48 +67,50 @@ app.post('/', async (req, res) => {
             Не надавай медичних порад, лише рекомендації з харчування.
             Якщо якихось даних не вистачає, явно вкажи зроблені припущення.`;
         } else if (language == 'en') {
-            promptText = `DO NOT write a greeting or introductory text! Do not duplicate my daily requirements (calories, protein, etc.). Provide only(!) the meal plan itself, starting from the first day.
-            Goal: ${goal || "підтримання"}
-            Age: ${age}
-            Height: ${height} cm
-            Weight: ${weight} kg
-            Gender: ${gender}
-            Allergies: ${allergy}
-            Health: ${health}
-            Daily allowance:
-            Calories: ${bmr} kcal
-            Protein: ${protein} g
-            Fat: ${fat} g
-            Carbohydrates: ${carb} g
-            Vitamins and trace elements per day: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
+            promptText = `
+            ROLE & OBJECTIVE:
+            Act as a clinical nutritionist. Generate a strictly calculated 7-day meal plan based on the user's biometric data and constraints below.
 
-            Task:
-            You are a professional dietitian and nutritionist. Your task is to create personalized nutrition recommendations based on the provided personal data. 
-            Based on this data, compile a complete 7-day meal plan.
+            CRITICAL OUTPUT RULES (STRICTLY ENFORCE):
+            1. NO conversational filler, NO greetings, NO introductions (e.g., "Sure, here is...", "Based on your data...").
+            2. NO repetition of the provided user inputs (do not list age, weight, or calculated norms again).
+            3. START IMMEDIATELY with the header "## Day 1".
+            4. NO medical disclaimers in the body text (assume the user accepts standard risks).
+            5. Return ONLY the structured meal plan and the final recommendations section.
 
-            Each day must include breakfast, lunch, dinner, and 1–2 snacks if necessary.
+            USER VARIABLES:
+            - Goal: ${goal || "maintenance"}
+            - Age: ${age} | Height: ${height}cm | Weight: ${weight}kg | Gender: ${gender}
+            - Allergies (MUST EXCLUDE): ${allergy}
+            - Health Conditions: ${health}
+            - DAILY TARGETS (Tolerence ±5%)
+            - Calories: ${bmr} kcal
+            - Protein: ${protein}g | Fat: ${fat}g | Carbs: ${carb}g
+            - Micronutrients: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
 
-            For each dish, you must specify:
-            1. Name of the dish.
-            2. List of ingredients with exact weights.
-            3. Caloric content.
-            4. Amount of proteins, fats, and carbohydrates.
-            5. Key vitamins and minerals contained in the dish.
+            CONTENT REQUIREMENTS:
+            1. Structure: 7 Days. Each day includes Breakfast, Lunch, Dinner, Snack(s).
+            2. Meals: Must be realistic, affordable, and balanced.
+            3. Data per Meal: Name, Ingredients with precise weight (g), Calories, P/F/C (g), Key Vitamins.
+            4. Daily Totals: At the end of each day, provide a summary table comparing the day's total vs. the target.
 
-            Total daily metrics must closely match the specified targets for calories, proteins, fats, and carbohydrates. The diet must cover daily vitamin requirements without exceeding safe limits.
+            OUTPUT FORMAT:
+            Use the following Markdown structure exactly:
 
-            Strictly exclude all foods that cannot be consumed due to allergies, medical conditions, or injuries.
+            ## Day 1
+            | Meal | Dish | Ingredients (g) | Kcal | P (g) | F (g) | C (g) | Vitamins |
+            |---|---|---|---|---|---|---|---|
+            | Breakfast | ... | ... | ... | ... | ... | ... | ... |
+            | Lunch | ... | ... | ... | ... | ... | ... | ... |
+            | ... | ... | ... | ... | ... | ... | ... | ... |
 
-            The meal plan must be realistic, consist of common foods, avoid exotic or overly expensive ingredients, and be balanced and varied.
+            Day 1 Summary: Total Kcal: [X] (Target: ${bmr}), P: [X]g, F: [X]g, C: [X]g.
 
-            Response Format:
-            - A separate block for each day labeled Day 1 – Day 7.
-            - A clear structure or table for each day.
-            - At the end of each day, provide a daily summary: calories, proteins, fats, carbohydrates.
-            - After the entire meal plan, include brief general recommendations regarding water intake and possible food substitutions.
+            [Repeat for Days 2-7]
 
-            Do not provide medical advice, only nutritional recommendations.
-            If any data is missing, explicitly state the assumptions made.
+            ## General Recommendations
+            - Hydration: ...
+            - Substitutions: ...
             `;
         }
 
