@@ -18,7 +18,14 @@ app.post('/', async (req, res) => {
         // --- ИЗМЕНЕНИЕ 1: Собираем ключи в массив ---
         const apiKeys = [
             process.env.GOOGLE_API_KEY_1, 
-            process.env.GOOGLE_API_KEY_2
+            process.env.GOOGLE_API_KEY_2,
+            process.env.GOOGLE_API_KEY_3,
+            process.env.GOOGLE_API_KEY_4,
+            process.env.GOOGLE_API_KEY_5,
+            process.env.GOOGLE_API_KEY_6,
+            process.env.GOOGLE_API_KEY_7,
+            process.env.GOOGLE_API_KEY_8,
+            process.env.GOOGLE_API_KEY_9,
         ].filter(key => key); // Убираем пустые, если какой-то ключ не задан
 
         if (apiKeys.length === 0) {
