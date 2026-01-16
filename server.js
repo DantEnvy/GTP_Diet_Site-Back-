@@ -59,7 +59,7 @@ app.post('/', async (req, res) => {
 ## День 1
 **Сніданок:** [Назва страви]
 - Інгредієнти: [Список інгредієнтів з точною вагою в грамах]
-- Поживна цінність: [X] ккал | Б: [X]г | Ж: [X]г | В: [X]г | Вітаміни: [Ключові вітаміни]
+- Поживна цінність: [X] ккал | Білки: [X]г | Жири: [X]г | Вуглеводи: [X]г | Вітаміни: [Ключові вітаміни]
 
 **Обід:** [Назва страви]
 - Інгредієнти: ...
@@ -73,7 +73,7 @@ app.post('/', async (req, res) => {
 - Інгредієнти: ...
 - Поживна цінність: ...
 
-**Підсумок Дня 1:** Всього Ккал: [X] (Ціль: ${bmr}), Б: [X]г, Ж: [X]г, В: [X]г.
+**Підсумок Дня 1:** Всього Ккал: [X] (Ціль: ${bmr}), Білки: [X]г, Жири: [X]г, Вуглеводи: [X]г.
 
 [Повторити для Днів 2-7]
 
@@ -115,7 +115,7 @@ Use the following Markdown structure exactly:
 ## Day 1
 **Breakfast:** [Dish Name]
 - Ingredients: [List of ingredients with precise weight in grams]
-- Nutrition: [X] kcal | P: [X]g | F: [X]g | C: [X]g | Vitamins: [Key Vitamins]
+- Nutrition: [X] kcal | Protein: [X]g | Fat: [X]g | Carbs: [X]g | Vitamins: [Key Vitamins]
 
 **Lunch:** [Dish Name]
 - Ingredients: ...
@@ -129,7 +129,7 @@ Use the following Markdown structure exactly:
 - Ingredients: ...
 - Nutrition: ...
 
-**Day 1 Summary:** Total Kcal: [X] (Target: ${bmr}), P: [X]g, F: [X]g, C: [X]g.
+**Day 1 Summary:** Total Kcal: [X] (Target: ${bmr}), Protein: [X]g, Fat: [X]g, Carbs: [X]g.
 
 [Repeat for Days 2-7]
 
