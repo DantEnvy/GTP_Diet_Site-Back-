@@ -26,6 +26,7 @@ app.post('/', async (req, res) => {
             process.env.GOOGLE_API_KEY_7,
             process.env.GOOGLE_API_KEY_8,
             process.env.GOOGLE_API_KEY_9,
+            process.env.GOOGLE_API_KEY_10
         ].filter(key => key); // Убираем пустые, если какой-то ключ не задан
 
         if (apiKeys.length === 0) {
