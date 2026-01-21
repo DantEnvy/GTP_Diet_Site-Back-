@@ -311,50 +311,54 @@ app.post('/', async (req, res) => {
 `;
         } else if (language == 'en') {
             promptText = `
-ROLE & OBJECTIVE:
-Act as a clinical nutritionist. Generate a strictly calculated 7-day meal plan based on the user's biometric data and constraints below.
+ROLE AND PURPOSE:
+Act as a clinical dietitian. Create a strictly calculated 7-day meal plan based on the user's biometric data and restrictions below.
+IMPORTANT: Meals should be as SIMPLE, ordinary and affordable as possible (home cooking, no exotic).
 
-LANGUAGE CONSTRAINT:
-OUTPUT MUST BE STRICTLY IN ENGLISH.
+LANGUAGE RESTRICTION:
+ALL OUTPUT SHOULD BE EXCLUSIVELY IN UKRAINIAN.
 
-CRITICAL OUTPUT RULES (STRICTLY ENFORCE):
-1. NO conversational filler, NO greetings, NO introductions (e.g., "Sure...", "Here is...").
-2. NO repetition of user inputs.
-3. START IMMEDIATELY with the header "## Day 1".
-4. NO medical disclaimers in the body text.
+CRITICAL OUTPUT RULES (STRICTLY FOLLOWED):
+1. NO conversational inserts, NO greetings, NO introductions.
+2. DO NOT repeat user input.
+3. START IMMEDIATELY with the heading "## Day 1".
+4. NO medical disclaimers in the main text.
 5. Return ONLY the structured meal plan and the final recommendations section.
-6. DO NOT use tables. Use a clear list format with bold headers.
+6. IMAGE: Insert only ONE image per day, strictly AFTER the day title (e.g. after ## Day 1).
+7. IMAGE FORMAT: Use the link: ![image](https://loremflickr.com/800/500/food,plate,[dish_keywords_english])
+Instead of [dish_keywords_english], substitute 1-2 English words that describe the main dish of the day (e.g. soup, chicken, salad). This will allow the images to change depending on the diet.
 
 USER VARIABLES:
-- Goal: ${goal || "maintenance"}
+- Goal: ${goal || "weight maintenance"}
 - Age: ${age} | Height: ${height}cm | Weight: ${weight}kg | Gender: ${gender}
 - Allergies (MUST EXCLUDE): ${allergy}
-- Health Conditions: ${health}
+- Health: ${health}
 - Foods to Avoid (MUST EXCLUDE): ${food}
-- DAILY TARGETS (Tolerance ±5%):
-  - Calories: ${bmr} kcal
-  - Macros: Protein ${protein}g | Fat ${fat}g | Carbs ${carb}g
-  - Micronutrients: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
+- DAILY GOALS (Tolerance ±5%):
+- Calories: ${bmr} kcal
+- Macronutrients: Protein ${protein}g | Fat ${fat}g | Carbohydrates ${carb}g
+- Micronutrients: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
 
 OUTPUT FORMAT:
-Use the following Markdown structure exactly:
 
 ## Day 1
+![image](https://loremflickr.com/800/500/food,plate,[dish_keywords_english])
+
 **Breakfast:** [Dish Name]
-- Ingredients: [List of ingredients with precise weight in grams]
-- Nutrition: [X] kcal | Protein: [X]g | Fat: [X]g | Carbs: [X]g | Vitamins: [Key Vitamins]
+- Ingredients: [List of ingredients with exact weight in grams]
+- Nutritional Value: [X] kcal | Protein: [X]g | Fat: [X]g | Carbohydrates: [X]g | Vitamins: [Key Vitamins]
 
-**Lunch:** [Dish Name]
+**Lunch:** [Meal Name]
 - Ingredients: ...
-- Nutrition: ...
+- Nutritional Value: ...
 
-**Dinner:** [Dish Name]
+**Dinner:** [Meal Name]
 - Ingredients: ...
-- Nutrition: ...
+- Nutritional Value: ...
 
-**Snack:** [Dish Name]
+**Snack:** [Meal Name]
 - Ingredients: ...
-- Nutrition: ...
+- Nutritional Value: ...
 
 **Day 1 Summary:** Total Kcal: [X] (Target: ${bmr}), Protein: [X]g, Fat: [X]g, Carbs: [X]g.
 
