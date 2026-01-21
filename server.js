@@ -147,7 +147,6 @@ Use the following Markdown structure exactly:
 - **Tips:** ...
 `;
 }
-
         let data;
         let success = false;
         let lastErrorStatus = 500;
@@ -157,7 +156,7 @@ Use the following Markdown structure exactly:
             console.log(`Спроба запиту з ключем #${i + 1}...`);
 
             const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${currentKey}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${currentKey}`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
