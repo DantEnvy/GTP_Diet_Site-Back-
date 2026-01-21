@@ -316,7 +316,7 @@ Act as a clinical dietitian. Create a strictly calculated 7-day meal plan based 
 IMPORTANT: Meals should be as SIMPLE, ordinary and affordable as possible (home cooking, no exotic).
 
 LANGUAGE RESTRICTION:
-ALL OUTPUT SHOULD BE EXCLUSIVELY IN UKRAINIAN.
+ALL OUTPUT SHOULD BE EXCLUSIVELY IN ENGLISH.
 
 CRITICAL OUTPUT RULES (STRICTLY FOLLOWED):
 1. NO conversational inserts, NO greetings, NO introductions.
