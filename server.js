@@ -252,118 +252,70 @@ app.post('/', async (req, res) => {
         if (language == 'uk') {
             promptText = `
 РОЛЬ ТА МЕТА:
-Дій як клінічний дієтолог. Створи суворо розрахований план харчування на 7 днів на основі наведених нижче біометричних даних користувача та обмежень.
+Дій як клінічний дієтолог. Створи суворо розрахований план харчування на 7 днів. 
+ВАЖЛИВО: Страви мають бути максимально ПРОСТИМИ, звичайними та доступними (домашня кухня, мінімум екзотичних інгредієнтів).
 
 МОВНЕ ОБМЕЖЕННЯ:
-ВЕСЬ ВИВІД МАЄ БУТИ ВИКЛЮЧНО УКРАЇНСЬКОЮ МОВОЮ.
+ВЕСЬ ВИВІД МАЄ БУТИ ВИКЛЮЧНО УКРАЇНСЬКОЮ МОВОЮ (окрім тегів для фото).
 
-КРИТИЧНІ ПРАВИЛА ВИВОДУ (СУВОРО ДОТРИМУВАТИСЬ):
-1. ЖОДНИХ розмовних вставок, ЖОДНИХ привітань, ЖОДНИХ вступів (наприклад, "Звісно...", "Ось ваш план...").
-2. НЕ повторювати вхідні дані користувача.
-3. ПОЧИНАТИ НЕГАЙНО із заголовка "## День 1".
-4. ЖОДНИХ медичних відмов від відповідальності в основному тексті.
-5. Повернути ТІЛЬКИ структурований план харчування та розділ фінальних рекомендацій.
-6. НЕ використовувати таблиці. Використовуй чіткий списковий формат із жирним шрифтом для кращої читабельності.
+КРИТИЧНІ ПРАВИЛА:
+1. Використовуй прості продукти: гречка, рис, картопля, курка, сезонні овочі, яйця, сир. Жодних насіння чіа, авокадо чи кіноа, якщо це не вказано користувачем.
+2. ПОЧИНАТИ НЕГАЙНО із заголовка "## День 1".
+3. ПІСЛЯ кожної назви страви додавай зображення за шаблоном: 
+   ![image](https://pollinations.ai/p/[назва_страви_англійською]?width=600&height=400&nologo=true)
 
 ЗМІННІ КОРИСТУВАЧА:
 - Мета: ${goal || "підтримка ваги"}
-- Вік: ${age} | Зріст: ${height}см | Вага: ${weight}кг | Стать: ${gender}
-- Алергії (ОБОВ'ЯЗКОВО ВИКЛЮЧИТИ): ${allergy}
-- Стан здоров'я: ${health}
-- Продукти, яких слід уникати (ОБОВ'ЯЗКОВО ВИКЛЮЧИТИ): ${food}
-- ДЕННІ ЦІЛІ (Допуск ±5%):
-  - Калорії: ${bmr} ккал
-  - Макронутрієнти: Білки ${protein}г | Жири ${fat}г | Вуглеводи ${carb}г
-  - Мікронутрієнти: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
+- Біометрія: ${age} років, ${height}см, ${weight}кг.
+- ДЕННІ ЦІЛІ: ${bmr} ккал | Б:${protein}г, Ж:${fat}г, В:${carb}г.
 
 ФОРМАТ ВИВОДУ:
-Використовуй наступну структуру Markdown точно для кожного дня:
-
 ## День 1
-**Сніданок:** [Назва страви]
-![image](https://loremflickr.com/640/480/food,[Назва_страви_англійською_через_кому])
-- Інгредієнти: [Список інгредієнтів з точною вагою в грамах]
-- Поживна цінність: [X] ккал | Білки: [X]г | Жири: [X]г | Вуглеводи: [X]г | Вітаміни: [Ключові вітаміни]
-
-**Обід:** [Назва страви]
-![image](https://loremflickr.com/640/480/food,[Назва_страви_англійською_через_кому])
-- Інгредієнти: ...
+**Сніданок:** [Назва простої страви]
+![image](https://pollinations.ai/p/[English_Dish_Name]?width=600&height=400&nologo=true)
+- Інгредієнти: [Список інгредієнтів з вагою]
 - Поживна цінність: ...
 
-**Вечеря:** [Назва страви]
-![image](https://loremflickr.com/640/480/food,[Назва_страви_англійською_через_кому])
-- Інгредієнти: ...
-- Поживна цінність: ...
-
-**Перекус:** [Назва страви]
-![image](https://loremflickr.com/640/480/food,[Назва_страви_англійською_через_кому])
-- Інгредієнти: ...
-- Поживна цінність: ...
-
-**Підсумок Дня 1:** Всього Ккал: [X] (Ціль: ${bmr}), Білки: [X]г, Жири: [X]г, Вуглеводи: [X]г.
-
-[Повторити для Днів 2-7]
+**Обід:** [Назва простої страви]
+![image](https://pollinations.ai/p/[English_Dish_Name]?width=600&height=400&nologo=true)
+... (і так далі для Вечері та Перекусу)
 
 ## Загальні Рекомендації
-- **Гідратація:** ...
-- **Заміни:** ...
-- **Поради:** ...
+...
 `;
         } else if (language == 'en') {
             promptText = `
-ROLE & OBJECTIVE:
-Act as a clinical nutritionist. Generate a strictly calculated 7-day meal plan based on the user's biometric data and constraints below.
+ROLE AND GOAL:
+Act as a clinical nutritionist. Create a strictly calculated 7-day meal plan.
+IMPORTANT: Dishes should be as SIMPLE, ordinary and affordable as possible (home cooking, minimum exotic ingredients).
 
-LANGUAGE CONSTRAINT:
-OUTPUT MUST BE STRICTLY IN ENGLISH.
+LANGUAGE RESTRICTION:
+ALL OUTPUT SHOULD BE EXCLUSIVELY IN UKRAINIAN (except for photo tags).
 
-CRITICAL OUTPUT RULES (STRICTLY ENFORCE):
-1. NO conversational filler, NO greetings, NO introductions (e.g., "Sure...", "Here is...").
-2. NO repetition of user inputs.
-3. START IMMEDIATELY with the header "## Day 1".
-4. NO medical disclaimers in the body text.
-5. Return ONLY the structured meal plan and the final recommendations section.
-6. DO NOT use tables. Use a clear list format with bold headers.
+CRITICAL RULES:
+1. Use simple products: buckwheat, rice, potatoes, chicken, seasonal vegetables, eggs, cheese. No chia seeds, avocados or quinoa unless specified by the user.
+2. START IMMEDIATELY with the heading "## Day 1".
+3. AFTER each dish name, add an image according to the template:
+![image](https://pollinations.ai/p/[nazwa_drawy_englijskoj]?width=600&height=400&nologo=true)
 
 USER VARIABLES:
-- Goal: ${goal || "maintenance"}
-- Age: ${age} | Height: ${height}cm | Weight: ${weight}kg | Gender: ${gender}
-- Allergies (MUST EXCLUDE): ${allergy}
-- Health Conditions: ${health}
-- Foods to Avoid (MUST EXCLUDE): ${food}
-- DAILY TARGETS (Tolerance ±5%):
-  - Calories: ${bmr} kcal
-  - Macros: Protein ${protein}g | Fat ${fat}g | Carbs ${carb}g
-  - Micronutrients: ${typeof vitamins === 'object' ? JSON.stringify(vitamins) : vitamins}
+- Goal: ${goal || "weight maintenance"}
+- Biometrics: ${age} years, ${height}cm, ${weight}kg.
+- DAILY GOALS: ${bmr} kcal | B:${protein}g, F:${fat}g, C:${carb}g.
 
 OUTPUT FORMAT:
-Use the following Markdown structure exactly:
-
 ## Day 1
-**Breakfast:** [Dish Name]
-- Ingredients: [List of ingredients with precise weight in grams]
-- Nutrition: [X] kcal | Protein: [X]g | Fat: [X]g | Carbs: [X]g | Vitamins: [Key Vitamins]
+**Breakfast:** [Simple Dish Name]
+![image](https://pollinations.ai/p/[English_Dish_Name]?width=600&height=400&nologo=true)
+- Ingredients: [Ingredient List with Weight]
+- Nutritional Value: ...
 
-**Lunch:** [Dish Name]
-- Ingredients: ...
-- Nutrition: ...
-
-**Dinner:** [Dish Name]
-- Ingredients: ...
-- Nutrition: ...
-
-**Snack:** [Dish Name]
-- Ingredients: ...
-- Nutrition: ...
-
-**Day 1 Summary:** Total Kcal: [X] (Target: ${bmr}), Protein: [X]g, Fat: [X]g, Carbs: [X]g.
-
-[Repeat for Days 2-7]
+**Lunch:** [Simple Dish Name]
+![image](https://pollinations.ai/p/[English_Dish_Name]?width=600&height=400&nologo=true)
+... (and so on for Dinner and Snack)
 
 ## General Recommendations
-- **Hydration:** ...
-- **Substitutions:** ...
-- **Tips:** ...
+...
 `;
 }
         let data;
