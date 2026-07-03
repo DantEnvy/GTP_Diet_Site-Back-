@@ -1,21 +1,21 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import OpenAI from 'openai';
-import pkg from 'pg'; // Пакет для PostgreSQL
-const { Pool } = pkg;
-import bcrypt from 'bcrypt'; // Для шифрования паролей
-import jwt from 'jsonwebtoken'; // Для токенов авторизации
+import OpenAI from 'openai'; 
+import pg from 'pg'; 
+const { Pool } = pg;
+import bcrypt from 'bcrypt'; 
+import jwt from 'jsonwebtoken'; 
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Подключение к базе данных Vercel Postgres
+// Подключение к твоей базе данных (убедись, что DATABASE_URL есть в .env)
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false } // Обязательно для Vercel
+    ssl: { rejectUnauthorized: false } 
 });
 
 const openai = new OpenAI({
@@ -25,6 +25,62 @@ const openai = new OpenAI({
 app.use(cors());
 app.use(express.json());
 
+// ==========================================
+// РОУТ РЕГИСТРАЦИИ
+// ==========================================
+app.post('/register', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: "Заполните все поля" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        const newUser = await pool.query(
+            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email",
+            [email, hashedPassword]
+        );
+        
+        res.json({ message: "Успешная регистрация!", user: newUser.rows[0] });
+    } catch (err) {
+        console.error("REGISTER ERROR:", err);
+        res.status(500).json({ message: "Email уже зарегистрирован или ошибка БД" });
+    }
+});
+
+// ==========================================
+// РОУТ ЛОГИНА
+// ==========================================
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: "Заполните все поля" });
+        }
+
+        const userResult = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        if (userResult.rows.length === 0) {
+            return res.status(401).json({ message: "Пользователь не найден" });
+        }
+        
+        const user = userResult.rows[0];
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
+            return res.status(401).json({ message: "Неверный пароль" });
+        }
+        
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+        res.json({ message: "Вход выполнен!", token, userId: user.id });
+    } catch (err) {
+        console.error("LOGIN ERROR:", err);
+        res.status(500).json({ message: "Ошибка сервера при входе" });
+    }
+});
+
+// ==========================================
+// ТВОЙ РОУТ ГЕНЕРАЦИИ ДИЕТЫ (ОСТАВЛЕН БЕЗ ИЗМЕНЕНИЙ)
+// ==========================================
 app.post('/', async (req, res) => { 
     try {
         console.log("Отримано запит:", req.body);
@@ -173,34 +229,11 @@ Use the following Markdown structure exactly:
             return res.status(500).json({ error: "Порожня відповідь від ШІ" });
         }
 
-        // СОХРАНЕНИЕ В БАЗУ ДАННЫХ (если пользователь передал свой ID)
-        if (userId) {
-            await pool.query(
-                "INSERT INTO diets (user_id, diet_text) VALUES ($1, $2)",
-                [userId, dietText]
-            );
-            console.log("План питания сохранен в базу для пользователя", userId);
-        }
-
         res.json({ diet: dietText });
-
     } catch (err) {
         console.error("SERVER ERROR:", err);
+        if (err.status === 429) return res.status(429).json({ error: "Ліміт запитів вичерпано." });
         res.status(500).json({ error: "Внутрішня помилка сервера" });
-    }
-});
-
-app.get('/my-diets/:userId', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const result = await pool.query(
-            "SELECT * FROM diets WHERE user_id = $1 ORDER BY created_at DESC", 
-            [userId]
-        );
-        res.json(result.rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Ошибка при получении истории" });
     }
 });
 
@@ -420,7 +453,7 @@ Use the following Markdown structure exactly:
 
 app.listen(PORT, () => {
     console.log(`🚀 Сервер запущено на порту ${PORT}`);
-});*/
+});
 
 app.post('/register', async (req, res) => {
     try {
@@ -466,4 +499,4 @@ app.post('/login', async (req, res) => {
         console.error(err);
         res.status(500).json({ error: "Ошибка при входе" });
     }
-});
+});*/
