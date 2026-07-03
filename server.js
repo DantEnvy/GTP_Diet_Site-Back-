@@ -1,15 +1,23 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import OpenAI from 'openai'; // 1. Импортируем OpenAI
+import OpenAI from 'openai';
+import pkg from 'pg'; // Пакет для PostgreSQL
+const { Pool } = pkg;
+import bcrypt from 'bcrypt'; // Для шифрования паролей
+import jwt from 'jsonwebtoken'; // Для токенов авторизации
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 2. Инициализация клиента OpenAI
-// Ключ берется автоматически из process.env.OPENAI_API_KEY
+// Подключение к базе данных Vercel Postgres
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false } // Обязательно для Vercel
+});
+
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
@@ -165,15 +173,34 @@ Use the following Markdown structure exactly:
             return res.status(500).json({ error: "Порожня відповідь від ШІ" });
         }
 
+        // СОХРАНЕНИЕ В БАЗУ ДАННЫХ (если пользователь передал свой ID)
+        if (userId) {
+            await pool.query(
+                "INSERT INTO diets (user_id, diet_text) VALUES ($1, $2)",
+                [userId, dietText]
+            );
+            console.log("План питания сохранен в базу для пользователя", userId);
+        }
+
         res.json({ diet: dietText });
 
     } catch (err) {
         console.error("SERVER ERROR:", err);
-        // Обработка типичных ошибок OpenAI
-        if (err.status === 429) {
-             return res.status(429).json({ error: "Ліміт запитів вичерпано. Спробуйте пізніше." });
-        }
-        res.status(500).json({ error: "Внутрішня помилка сервера або помилка API" });
+        res.status(500).json({ error: "Внутрішня помилка сервера" });
+    }
+});
+
+app.get('/my-diets/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const result = await pool.query(
+            "SELECT * FROM diets WHERE user_id = $1 ORDER BY created_at DESC", 
+            [userId]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Ошибка при получении истории" });
     }
 });
 
@@ -394,3 +421,49 @@ Use the following Markdown structure exactly:
 app.listen(PORT, () => {
     console.log(`🚀 Сервер запущено на порту ${PORT}`);
 });*/
+
+app.post('/register', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        // Шифруем пароль перед сохранением
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Сохраняем в базу
+        const newUser = await pool.query(
+            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email",
+            [email, hashedPassword]
+        );
+        
+        res.json({ message: "Успешная регистрация!", user: newUser.rows[0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Ошибка регистрации (возможно email уже занят)" });
+    }
+});
+
+// --- РОУТ 2: ЛОГИН ---
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const userResult = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        
+        if (userResult.rows.length === 0) {
+            return res.status(401).json({ error: "Пользователь не найден" });
+        }
+        
+        const user = userResult.rows[0];
+        const isValid = await bcrypt.compare(password, user.password);
+        
+        if (!isValid) {
+            return res.status(401).json({ error: "Неверный пароль" });
+        }
+        
+        // Создаем токен (используем тот самый JWT_SECRET)
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        
+        res.json({ message: "Успешный вход!", token, userId: user.id });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Ошибка при входе" });
+    }
+});
